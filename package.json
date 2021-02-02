@@ -1,0 +1,64 @@
+{
+  "name": "ops-node",
+  "version": "1.0.0",
+  "description": "manger multiple node application package",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "publish": "npm publish"
+  },
+  "bin": {
+    "ops": "bin/ops.js"
+  },
+  "keywords": [
+    "node",
+    "koa",
+    "deployment"
+  ],
+  "author": "keyiis",
+  "license": "ISC",
+  "repository": {
+    "url": "https://github.com/keyiis/mnode.git"
+  },
+  "dependencies": {
+    "@babel/core": "^7.7.2",
+    "@babel/preset-env": "^7.7.1",
+    "babel-plugin-module-resolver": "^3.2.0",
+    "commander": "^5.0.0",
+    "del": "^3.0.0",
+    "gulp": "^4.0.0",
+    "gulp-babel": "^8.0.0",
+    "gulp-cli": "^2.1.0",
+    "gulp-htmlmin": "^5.0.1",
+    "gulp-json-editor": "^2.5.1",
+    "gulp-nodemon": "^2.4.2",
+    "gulp-typescript": "^5.0.1",
+    "inquirer": "^7.0.4",
+    "js-beautify": "^1.10.3",
+    "moment": "^2.24.0",
+    "typescript": "^3.8.3"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^8.3.5",
+    "@commitlint/config-conventional": "^8.3.4",
+    "commitizen": "^4.0.3",
+    "conventional-changelog-cli": "^2.0.31",
+    "cz-conventional-changelog": "^3.1.0",
+    "husky": "^4.2.3"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
+  }
+}
