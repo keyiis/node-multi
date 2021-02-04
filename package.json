@@ -1,5 +1,5 @@
 {
-  "name": "node-mm",
+  "name": "node-multi",
   "version": "1.0.0",
   "description": "manger multiple node application package",
   "main": "index.js",
