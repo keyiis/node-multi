@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "bin": {
-    "ops": "bin/ops.js"
+    "nodem": "bin/cli.js"
   },
   "keywords": [
     "node",
@@ -35,25 +35,6 @@
     "gulp-typescript": "^5.0.1",
     "inquirer": "^7.0.4",
     "js-beautify": "^1.10.3",
-    "moment": "^2.24.0",
-    "typescript": "^3.8.3"
-  },
-  "devDependencies": {
-    
-  },
-  "config": {
-    "commitizen": {
-      "path": "./node_modules/cz-conventional-changelog"
-    }
-  },
-  "commitlint": {
-    "extends": [
-      "@commitlint/config-conventional"
-    ]
-  },
-  "husky": {
-    "hooks": {
-      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
-    }
+    "moment": "^2.24.0"
   }
 }

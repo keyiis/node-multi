@@ -1,0 +1,145 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "id": "./schema",
+  "title": "多项目配置",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "root": {
+      "type": "string",
+      "description": "项目根目录"
+    },
+    "projects": {
+      "type": "object",
+      "description": "项目列表",
+      "patternProperties": {
+        "^[a-zA-Z][.0-9a-zA-Z]*(-[.0-9a-zA-Z]*)*$": {
+          "type": "object",
+          "description": "项目代码(唯一标识)",
+          "properties": {
+            "dir": {
+              "type": "string",
+              "description": "项目子目录"
+            },
+            "disable": {
+              "type": "boolean",
+              "description": "是否禁用"
+            },
+            "name": {
+              "type": "string",
+              "description": "项目名称,会展示在readme中"
+            },
+            "envs": {
+              "$ref": "#/definitions/envsOptions"
+            }
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "global": {
+      "type": "object",
+      "description": "全局配置",
+      "properties": {
+        "env": {
+          "type": "object",
+          "description": "全局环境配置,优先级顺序projects.envs>global.envs>global.env",
+          "$ref": "#/definitions/envOptions"
+        },
+        "envs":{
+          "description": "全局指定环境配置,与项目内环境代码对应,优先使用项目内对应的环境配置",
+          "$ref": "#/definitions/envsOptions"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "root",
+    "projects"
+  ],
+  "definitions": {
+    "envsOptions": {
+      "type": "object",
+      "description": "环境列表",
+      "patternProperties": {
+        "^[a-zA-Z][.0-9a-zA-Z]*(_[.0-9a-zA-Z]*)*$": {
+          "$ref": "#/definitions/envOptions"
+        }
+      },
+      "additionalProperties": false
+    },
+    "envOptions": {
+      "type": "object",
+      "description": "环境代码(唯一标识)",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "环境名称"
+        },
+        "dist": {
+          "type": "string",
+          "description": "环境发布的目录"
+        },
+        "config": {
+          "type": "object",
+          "description": "环境配置,会生成到项目的根目录下config.json内"
+        },
+        "pm2": {
+          "type": "object",
+          "description": "生成pm2启动文件的配置,参考pm2配置 https://pm2.keymetrics.io/docs/usage/application-declaration/",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "pm2内应用名称"
+            },
+            "script": {
+              "type": "string",
+              "description": "node应用的启动脚本,比如server.js"
+            },
+            "log_date_format": {
+              "type": "string",
+              "description": "PM2的日志日期前缀格式"
+            },
+            "exec_mode": {
+              "type": "string",
+              "description": "运行模式",
+              "enum": [
+                "fork",
+                "cluster"
+              ]
+            },
+            "instances": {
+              "type": "string",
+              "description": "应用实例数量,数字或者0/max,仅在exec_mode为cluster时有效"
+            }
+          },
+          "additionalProperties": false
+        },
+        "git": {
+          "type": "object",
+          "description": "git自动提交代码配置",
+          "properties": {
+            "url": {
+              "type": "string",
+              "description": "git代码库url"
+            },
+            "branch": {
+              "type": "string",
+              "description": "要推送代码分支的名称"
+            },
+            "defaultCommitMsg":{
+              "type": "string",
+              "description": "默认提交消息"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

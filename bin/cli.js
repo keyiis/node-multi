@@ -1,7 +1,10 @@
 #!/usr/bin/env node
-const program = require('commander'),tool = require("../src/gulpfile");
+const program = require('commander'),fs=require('fs');
+// var pjson = require('./package.json');
+// ,tool = require("../src/gulpfile");
+const packageJson = JSON.parse(fs.readFileSync('./package.json'));
 program
-    .version('0.0.1')
+    .version(packageJson.version)
     .option('-i, --init', '初始化项目,生成projects.json')
     .option('-m, --mode [value]', '指定运行模式,dev|build', 'dev')
     .option('-p, --project [value]', '指定运行项目,projects.json内配置的项目代码')
@@ -18,5 +21,9 @@ program
 //     // }
 // }
 // run(process.argv.slice(2));
-console.log(program.mode);
-tool.run(program.mode);
+console.log(program.init);
+if(program.init){
+    fs.writeFileSync(process.cwd()+'/projects.json', fs.readFileSync(__dirname+'/../template/projects.json'));
+    console.log(__dirname,process.cwd())
+}
+// tool.run(program.mode);
