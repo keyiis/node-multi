@@ -26,7 +26,6 @@ async function run() {
         // .option('-p, --project [value]', '指定运行项目,projects.json内配置的项目代码')
         // .option('-e, --environment [value]', '指定运行环境配置ojects.json内配置的项目环境代码');
     program.command('run').description('执行项目').option('-m, --mode [value]', '指定运行模式,dev(开发调试)|build(构建部署)', 'dev').action((cmdObj)=>{
-        console.log(111,process.cwd());
         execSync(`node ${__dirname}/../node_modules/gulp/bin/gulp.js --gulpfile ${__dirname}/../src/gulpfile.js --cwd ${process.cwd()} dev`, {stdio:[0,1,2]});
     });
     program.parse(process.argv);
