@@ -1,0 +1,5 @@
+import * as common from '@common/index';
+import {ENV_CONFIG} from './config';
+
+console.log(`${ENV_CONFIG.projectName} 已启动，运行环境：${ENV_CONFIG.name}`);
+common.run();

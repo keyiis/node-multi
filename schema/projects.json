@@ -31,6 +31,10 @@
               "type": "string",
               "description": "项目名称,会展示在readme中"
             },
+            "entry": {
+              "type": "string",
+              "description": "入口文件(相对项目根目录)"
+            },
             "envs": {
               "$ref": "#/definitions/envsOptions"
             }

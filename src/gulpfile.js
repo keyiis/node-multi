@@ -6,7 +6,10 @@ let tsProject = ts.createProject("tsconfig.json");
 /**
  * 项目配置列表
  */
-let PROJECTS=require('./projects.json');
+// throw new Error(222+'  '+process.cwd()+'  '+__dirname);
+// let PROJECTS={}
+let PROJECTS=JSON.parse(fs.readFileSync(process.cwd()+'/projects.json'));
+// let PROJECTS=require('./projects.json');
 /**
  * 当前项目配置
  */
@@ -89,7 +92,7 @@ function compileProject() {
         .pipe(babel({
             // presets: ['@babel/env'],
             plugins: [
-                ["module-resolver", {
+                [require.resolve('babel-plugin-module-resolver'), {
                     "root": ["."],
                     "alias": {
                         "@common": `./${PROJECT_PATH}/common`
@@ -203,7 +206,7 @@ async function startWatch() {
 // 启动开发服务
 async function startDev() {
     return nodemon({
-        script: `${DIST_PATH}/server.js`,
+        script: `${DIST_PATH}/${PROJECT.entry}`,
         watch: DIST_PATH,
         ext: 'js html',
         // 设置运行环境

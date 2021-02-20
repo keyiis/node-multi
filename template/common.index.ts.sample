@@ -1,0 +1,5 @@
+function run(){
+    console.log(`该目录放置公用方法，在项目里可通过@common引用`);
+}
+
+export {run}

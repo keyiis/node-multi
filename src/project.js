@@ -45,6 +45,7 @@ module.exports.addProject = async function(){
     let newProject = {
         dir:res.pname,
         name:res.pname,
+        entry:'index.js',
         envs:{}
     };
     projectJson.projects[res.pname]=newProject;
@@ -62,21 +63,21 @@ module.exports.addProject = async function(){
             message: '请选择构建环境',
             choices: envNames
         });
-        let selectEnvs=[];
         let custEnvIdx = res2.env.indexOf('自定义环境');
         if(custEnvIdx>=0){
-            selectEnvs = res2.env.splice(custEnvIdx,1);
+            res2.env.splice(custEnvIdx,1);
             await addEnv(newProject);
-        }else{
-            selectEnvs=res2.env;
         }
-        if(selectEnvs.length>0){
-            for(let key of selectEnvs){
+        if(res2.env.length>0){
+            for(let key of res2.env){
                 await addEnv(newProject,key);
             }
         }
         console.log(res2.env);
     }
     fs.writeFileSync(projectJsonPath,jsbeautify(JSON.stringify(projectJson)), 'utf8');
-    fs.mkdirSync(process.cwd() + '/src/projects/'+res.pname);
+    let ProjectDir = process.cwd() + '/src/projects/'+res.pname;
+    if(!fs.existsSync(ProjectDir)) fs.mkdirSync(ProjectDir);
+    fs.writeFileSync(`${ProjectDir}/config.ts`, fs.readFileSync(__dirname + '/../template/config.ts.sample'));
+    fs.writeFileSync(`${ProjectDir}/index.ts`, fs.readFileSync(__dirname + '/../template/index.ts.sample'));
 }

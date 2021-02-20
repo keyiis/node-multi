@@ -1,0 +1,5 @@
+/**
+ * 当前环境配置
+ * config.json会在编译时生成到项目的根目录
+ */
+export const ENV_CONFIG:any=require('./config.json');
