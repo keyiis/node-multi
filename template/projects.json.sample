@@ -1,0 +1,13 @@
+{
+    "$schema": "./node_modules/node-multi/schema/projects.json",
+    "root": "src/projects",
+    "projects": {
+
+    },
+    "global": {
+        "env": {
+            "dist": "./dist"
+        },
+        "envs": { }
+    }
+}
