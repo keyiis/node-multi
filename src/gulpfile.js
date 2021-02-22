@@ -205,6 +205,10 @@ async function startWatch() {
 
 // 启动开发服务
 async function startDev() {
+    // 这段代码可以防止ctrl-c无法一次结束进程
+    process.once('SIGINT', function(){
+        process.exit(0);
+    });
     return nodemon({
         script: `${DIST_PATH}/${PROJECT.entry}`,
         watch: DIST_PATH,
@@ -218,7 +222,7 @@ async function startDev() {
  * 提交代码到git
  */
 async function commitToGit() {
-    if(!ENV.git) return;
+    if(!(ENV.git && ENV.git.url && ENV.git.branch)) return;
     if (!fs.existsSync(`${DIST_PATH}/.git`)){
         execSync('git init', { cwd: DIST_PATH });
         execSync(`git remote add origin ${ENV.git.url}`, { cwd: DIST_PATH });
