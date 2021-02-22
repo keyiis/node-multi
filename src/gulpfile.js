@@ -202,13 +202,12 @@ async function startWatch() {
     });
     return;
 }
-
+// 这段代码可以防止ctrl-c无法一次结束nodemon启动的调试状态
+process.once('SIGINT', function(){
+    process.exit(0);
+});
 // 启动开发服务
 async function startDev() {
-    // 这段代码可以防止ctrl-c无法一次结束进程
-    process.once('SIGINT', function(){
-        process.exit(0);
-    });
     return nodemon({
         script: `${DIST_PATH}/${PROJECT.entry}`,
         watch: DIST_PATH,
