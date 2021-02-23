@@ -3,7 +3,7 @@
 好处：节省磁盘空间，确保不同项目引用包的版本一致，提高代码复用率
 
 # 全局安装
-`npm i node-multi -g`
+`npm i node-multi -g`  
 使用 nodem 命令
 ```
 nodem init
@@ -12,7 +12,7 @@ nodem run -m build
 nodem run -m batch
 ```
 # 本地安装
-`npm i node-multi -D`
+`npm i node-multi -D`  
 在package.json的script中
 ```
 "scripts": {
