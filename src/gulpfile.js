@@ -50,7 +50,7 @@ async function setEnv() {
         type: 'list',
         name: 'project',
         message: '请选择要构建的项目',
-        choices: Object.keys(PROJECTS.projects)
+        choices: Object.keys(PROJECTS.projects.filter(r=>{return r.disable==true;}))
     });
     PROJECT = PROJECTS.projects[res1.project];
     PROJECT_PATH = `${PROJECTS.root}/${PROJECT.dir}`;
