@@ -235,26 +235,90 @@ async function commitToGit() {
     let res = await inq.prompt({
         type: 'input',
         name: 'msg',
-        message: '请输入提交信息'
+        message: `请输入${ENV.git.branch}提交信息`
     });
     execSync('git add .', { cwd: DIST_PATH });
     execSync(`git commit -m ${res.msg||'修改'}`, { cwd: DIST_PATH });
     execSync(`git push origin -f`, { cwd: DIST_PATH });
 }
 
-const common = gulp.series(setEnv,clean,compileProject, compileCommon, gulp.parallel(copyJs, minifyHtml, copyPublic,createConfigJson));
+const common = gulp.series(clean,compileProject, compileCommon, gulp.parallel(copyJs, minifyHtml, copyPublic,createConfigJson));
 
-gulp.task('dev', gulp.series(
+// const devTask = gulp.task('dev', gulp.series(
+//     async () => {
+//         ENV_KEY='development';
+//     }, common,startWatch,startDev
+// ));
+const devSeries = gulp.series(
     async () => {
         ENV_KEY='development';
-    }, common,startWatch,startDev
-));
-gulp.task('build', gulp.series(
-    common, editPackageJson,createPm2Js,createReadme,commitToGit
-));
-
-const run = function(mode){
-    gulp.start(mode);
+    }, setEnv,common,startWatch,startDev
+);
+// const buildTask = gulp.task('build', gulp.series(
+//     common, editPackageJson,createPm2Js,createReadme,commitToGit
+// ));
+const buildSeries = gulp.series(
+    setEnv,common, editPackageJson,createPm2Js,createReadme,commitToGit
+);
+/**
+ * 将gulp返回的stream转换为promise
+ * @param {*} stream 
+ */
+function toPromise(stream){
+    return new Promise((resolve,reject)=>{
+        stream(resolve);
+    });
+    
 }
-
-module.exports = run;
+/**
+ * 批量编译项目
+ */
+async function batch(){
+    let options = Object.entries(PROJECTS.projects).filter(r=>{
+        return !r[1].disable;
+    }).map(r=>{
+        return {name:`[${r[0]}]${r[1].name}`,value:r[0]};
+    });
+    let projectKeys = await inq.prompt({
+        type: 'checkbox',
+        name: 'projects',
+        message: '请选择要构建的项目',
+        choices: options//Object.keys(PROJECTS.projects)
+    });
+    // 获得环境变量
+    let envs = PROJECTS.global.envs;
+    if (!ENV_KEY) {
+        let envNames = Object.keys(envs);
+        let res2 = await inq.prompt({
+            type: 'list',
+            name: 'env',
+            message: '请选择构建环境',
+            choices: envNames
+        });
+        ENV_KEY = res2.env;
+    }
+    for(let projectKey of projectKeys.projects){
+        PROJECT = PROJECTS.projects[projectKey];
+        PROJECT_PATH = `${PROJECTS.root}/${PROJECT.dir}`;
+        ENV = _.defaultsDeep(PROJECT.envs[ENV_KEY],PROJECTS.global.envs[ENV_KEY],PROJECTS.global.env);
+        if(!ENV) throw `${projectKey}下的envs不存在环境[${ENV_KEY}]的配置`;
+        DIST_PATH = `${ENV.dist || './dist'}/${PROJECT.dir}/${ENV_KEY}`;
+        await toPromise(
+            gulp.series(
+                common, editPackageJson,createPm2Js,createReadme,commitToGit
+            )
+        );
+    }
+}
+module.exports.asyncRun = async function(mode){
+    // gulp.start(mode);
+    if(mode=='dev'){
+        await toPromise(devSeries);
+    }
+    if(mode=='build'){
+        await toPromise(buildSeries);
+    }
+    if(mode=='batch'){
+        await batch();
+    }
+}
