@@ -47,7 +47,7 @@ async function setEnv() {
     // 获得项目列表
     // let projectDirs = require('');
     let projectKeys = Object.entries(PROJECTS.projects).reduce((pre,cur)=>{
-        if(cur[1].disable==true) pre.push(cur[0]);
+        if(cur[1].disable!=true) pre.push(cur[0]);
         return pre;
     },[]);
     let res1 = await inq.prompt({
