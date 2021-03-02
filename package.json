@@ -4,9 +4,7 @@
   "description": "manger multiple node application & deploy",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "postinstall":"npm link",
-    "postuninstall":"npm unlink"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "bin": {
     "nodem": "bin/cli.js"
