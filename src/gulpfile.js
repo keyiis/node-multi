@@ -46,11 +46,15 @@ let VERISON = moment().format('YYYYMMDD.HH.mm.ss');
 async function setEnv() {
     // 获得项目列表
     // let projectDirs = require('');
+    let projectKeys = Object.entries(PROJECTS.projects).reduce((pre,cur)=>{
+        if(cur[1].disable==true) pre.push(cur[0]);
+        return pre;
+    },[]);
     let res1 = await inq.prompt({
         type: 'list',
         name: 'project',
         message: '请选择要构建的项目',
-        choices: Object.keys(PROJECTS.projects.filter(r=>{return r.disable==true;}))
+        choices: projectKeys
     });
     PROJECT = PROJECTS.projects[res1.project];
     PROJECT_PATH = `${PROJECTS.root}/${PROJECT.dir}`;
