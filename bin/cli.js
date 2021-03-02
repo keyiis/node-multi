@@ -22,7 +22,7 @@ async function run() {
         await projectTool.addProject();
     });
     program.command('run').description('执行项目').option('-m, --mode [value]', '指定运行模式,dev(开发调试)|build(构建部署)|batch(批量构建部署)', 'dev').action((cmdObj)=>{
-        execSync(`node ${__dirname}/../node_modules/gulp/bin/gulp.js --gulpfile ${__dirname}/../src/gulpfile.js --cwd ${process.cwd()} ${cmdObj.mode}`, {stdio:[0,1,2]});
+        execSync(`node ${__dirname}/../node_modules/gulp-cli/bin/gulp.js --gulpfile ${__dirname}/../src/gulpfile.js --cwd ${process.cwd()} ${cmdObj.mode}`, {stdio:[0,1,2]});
     });
     program.parseAsync(process.argv);
 }
