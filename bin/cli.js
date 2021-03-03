@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-const program = require('commander'), fs = require('fs'), inq = require('inquirer'),projectTool = require('../src/project.js'),execSync = require('child_process').execSync,gulpRunner = require('../src/gulpfile.js');
+const program = require('commander'), fs = require('fs'), inq = require('inquirer'),projectTool = require('../src/project.js'),execSync = require('child_process').execSync;
 
 const packageJson = JSON.parse(fs.readFileSync('./package.json'));
 
@@ -22,8 +22,8 @@ async function run() {
         await projectTool.addProject();
     });
     program.command('run').description('执行项目').option('-m, --mode [value]', '指定运行模式,dev(开发调试)|build(构建部署)|batch(批量构建部署)', 'dev').action(async (cmdObj)=>{
-        await gulpRunner.asyncRun(cmdObj.mode);
-        // execSync(`node ${__dirname}/../src/gulpfile.js --cwd ${process.cwd()} ${cmdObj.mode}`, {stdio:[0,1,2]});
+        // await gulpRunner.asyncRun(cmdObj.mode);
+        execSync(`node ${__dirname}/gulp_cli.js --gulpfile ${__dirname}/../src/gulpfile.js --cwd ${process.cwd()} ${cmdObj.mode}`, {stdio:[0,1,2]});
     });
     program.parseAsync(process.argv);
 }
