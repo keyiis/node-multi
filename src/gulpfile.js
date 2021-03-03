@@ -244,22 +244,18 @@ async function commitToGit() {
 
 const common = gulp.series(clean,compileProject, compileCommon, gulp.parallel(copyJs, minifyHtml, copyPublic,createConfigJson));
 
-// const devTask = gulp.task('dev', gulp.series(
-//     async () => {
-//         ENV_KEY='development';
-//     }, common,startWatch,startDev
-// ));
+
 const devSeries = gulp.series(
     async () => {
         ENV_KEY='development';
     }, setEnv,common,startWatch,startDev
 );
-// const buildTask = gulp.task('build', gulp.series(
-//     common, editPackageJson,createPm2Js,createReadme,commitToGit
-// ));
+gulp.task('dev', devSeries);
+
 const buildSeries = gulp.series(
     setEnv,common, editPackageJson,createPm2Js,createReadme,commitToGit
 );
+gulp.task('build', buildSeries);
 /**
  * 将gulp返回的stream转换为promise
  * @param {*} stream 
@@ -310,15 +306,17 @@ async function batch(){
         );
     }
 }
-module.exports.asyncRun = async function(mode){
-    // gulp.start(mode);
-    if(mode=='dev'){
-        await toPromise(devSeries);
-    }
-    if(mode=='build'){
-        await toPromise(buildSeries);
-    }
-    if(mode=='batch'){
-        await batch();
-    }
-}
+gulp.task('batch', batch);
+
+// module.exports.asyncRun = async function(mode){
+//     // gulp.start(mode);
+//     if(mode=='dev'){
+//         await toPromise(devSeries);
+//     }
+//     if(mode=='build'){
+//         await toPromise(buildSeries);
+//     }
+//     if(mode=='batch'){
+//         await batch();
+//     }
+// }
