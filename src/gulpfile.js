@@ -50,13 +50,19 @@ async function setEnv() {
         if(cur[1].disable!=true) pre.push(cur[0]);
         return pre;
     },[]);
-    let res1 = await inq.prompt({
-        type: 'list',
-        name: 'project',
-        message: '请选择要构建的项目',
-        choices: projectKeys
-    });
-    PROJECT = PROJECTS.projects[res1.project];
+    if(projectKeys.length==0) throw `projects.json中没有可用项目`;
+
+    if(projectKeys.length==1){
+        PROJECT = PROJECTS.projects[projectKeys[0]];
+    }else{
+        let res1 = await inq.prompt({
+            type: 'list',
+            name: 'project',
+            message: '请选择要构建的项目',
+            choices: projectKeys
+        });
+        PROJECT = PROJECTS.projects[res1.project];
+    }
     PROJECT_PATH = `${PROJECTS.root}/${PROJECT.dir}`;
     // 获得环境变量
     let envs = PROJECT.envs;
