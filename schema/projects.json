@@ -35,6 +35,10 @@
               "type": "string",
               "description": "入口文件(相对项目根目录)"
             },
+            "dependencies": {
+              "type": "object",
+              "description": "追加到package.json的dependencies中"
+            },
             "envs": {
               "$ref": "#/definitions/envsOptions"
             }

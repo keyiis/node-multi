@@ -171,6 +171,9 @@ function editPackageJson() {
         json.version=VERISON;
         delete json.devDependencies;
         delete json.scripts;
+        if(PROJECT.dependencies){
+            Object.assign(json.dependencies,PROJECT.dependencies);
+        }
         return json;
     })).pipe(gulp.dest(DIST_PATH));
 }
