@@ -76,7 +76,7 @@ async function setEnv() {
         });
         ENV_KEY = res2.env;
     }
-    ENV = _.defaultsDeep(envs[ENV_KEY],PROJECTS.global.envs[ENV_KEY],PROJECTS.global.env);
+    ENV = _.defaultsDeep(envs[ENV_KEY],PROJECT.env,PROJECTS.global.envs[ENV_KEY],PROJECTS.global.env);
     if(!ENV) throw `${res1.project}下的envs不存在环境[${ENV_KEY}]的配置`;
     DIST_PATH = `${ENV.dist || './dist'}/${PROJECT.dir}/${ENV_KEY}`;
 }

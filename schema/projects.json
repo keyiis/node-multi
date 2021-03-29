@@ -39,6 +39,11 @@
               "type": "object",
               "description": "追加到package.json的dependencies中"
             },
+            "env": {
+              "type": "object",
+              "description": "当前项目环境配置,优先级顺序projects.envs>projects.env>global.envs>global.env",
+              "$ref": "#/definitions/envOptions"
+            },
             "envs": {
               "$ref": "#/definitions/envsOptions"
             }
@@ -53,7 +58,7 @@
       "properties": {
         "env": {
           "type": "object",
-          "description": "全局环境配置,优先级顺序projects.envs>global.envs>global.env",
+          "description": "全局环境配置,优先级顺序projects.envs>projects.env>global.envs>global.env",
           "$ref": "#/definitions/envOptions"
         },
         "envs":{
