@@ -119,6 +119,18 @@ function compileCommon() {
     return gulp.src(["src/common/**/*.ts"], { base: `src` })
         .pipe(tsProject())
         .js
+        // 处理路径别名，这里的配置要和tsconfig里paths对应
+        .pipe(babel({
+            // presets: ['@babel/env'],
+            plugins: [
+                [require.resolve('babel-plugin-module-resolver'), {
+                    "root": ["."],
+                    "alias": {
+                        "@common": `./src/common`
+                    }
+                }]
+            ]
+        }))
         .pipe(gulp.dest(DIST_PATH));
 }
 /**
