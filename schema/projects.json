@@ -150,6 +150,55 @@
             }
           },
           "additionalProperties": false
+        },
+        "ssh": {
+          "type": "object",
+          "description": "通过ssh上传代码到服务器",
+          "properties": {
+            "config": {
+              "type": "object",
+              "description": "ssh连接配置",
+              "properties": {
+                "host": {
+                  "type": "string",
+                  "description": "ssh主机ip"
+                },
+                "port": {
+                  "type": "number",
+                  "description": "ssh主机端口"
+                },
+                "username": {
+                  "type": "string",
+                  "description": "ssh主机用户名"
+                },
+                "password": {
+                  "type": "string",
+                  "description": "ssh主机密码"
+                }
+              },
+              "required": ["host","port","username","password"]
+            },
+            "remotePath": {
+              "type": "string",
+              "description": "代码要上传的主机的目录"
+            },
+            "preShell":{
+              "type": "array",
+              "description": "上传前执行的命令",
+              "items": {
+                "type": "string"
+              }
+            },
+            "afterShell":{
+              "type": "array",
+              "description": "上传后执行的命令",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": ["config","remotePath"],
+          "additionalProperties": false
         }
       },
       "additionalProperties": false

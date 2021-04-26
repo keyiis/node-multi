@@ -1,4 +1,4 @@
-const gulp = require("gulp"), del = require("del"), ts = require("gulp-typescript"), nodemon = require('gulp-nodemon'), htmlmin = require('gulp-htmlmin'), jsbeautify = require('js-beautify').js, jeditor = require("gulp-json-editor"), babel = require('gulp-babel'), execSync = require('child_process').execSync,moment = require('moment'),fs = require("fs"),inq = require('inquirer'),_=require('lodash');
+const gulp = require("gulp"), del = require("del"), ts = require("gulp-typescript"), nodemon = require('gulp-nodemon'), htmlmin = require('gulp-htmlmin'), jsbeautify = require('js-beautify').js, jeditor = require("gulp-json-editor"), babel = require('gulp-babel'), execSync = require('child_process').execSync,moment = require('moment'),fs = require("fs"),inq = require('inquirer'),_=require('lodash'),GulpSSH = require('gulp-ssh'),zip = require('gulp-zip');
 /**
  * typescript编辑配置
  */
@@ -203,6 +203,37 @@ async function createPm2Js() {
     }
 }
 /**
+ * 使用ssh上传到服务器
+ */
+ function uploadSSH(cb){
+    if(!ENV.ssh) return cb();
+    var gulpSSH;
+    gulp.series(
+        async () => {
+            gulpSSH = new GulpSSH({
+                ignoreErrors: false,
+                sshConfig: ENV.ssh.config
+            });
+        }, () => {
+            if(!ENV.ssh.preShell) return;
+            return gulpSSH.shell(ENV.ssh.preShell).pipe(gulp.dest('gulplogs/preShell.log'))
+            // .on("ssh2Data",data=>{
+            //     console.log(data.toString())
+            // });
+        }, () => {
+            return gulp.src([`${DIST_PATH}/**/*`, `!${DIST_PATH}/node_modules`, `!${DIST_PATH}/.git`], { base: DIST_PATH })
+            .pipe(zip('dist.zip'))    
+            .pipe(gulpSSH.dest(ENV.ssh.remotePath));
+        }, () => {
+            if(!ENV.ssh.afterShell) return;
+            return gulpSSH.shell(ENV.ssh.afterShell).pipe(gulp.dest('gulplogs/afterShell.log'))
+            // .on("ssh2Data",data=>{
+            //     console.log(data.toString())
+            // });
+        }
+    )(cb);
+}
+/**
  * 创建Readme到发布目录
  */
 async function createReadme() {
@@ -274,7 +305,7 @@ const devSeries = gulp.series(
 gulp.task('dev', devSeries);
 
 const buildSeries = gulp.series(
-    setEnv,common, editPackageJson,createPm2Js,createReadme,commitToGit
+    setEnv,common, editPackageJson,createPm2Js,createReadme,commitToGit,uploadSSH
 );
 gulp.task('build', buildSeries);
 /**
@@ -322,7 +353,7 @@ async function batch(){
         DIST_PATH = `${ENV.dist || './dist'}/${PROJECT.dir}/${ENV_KEY}`;
         await toPromise(
             gulp.series(
-                common, editPackageJson,createPm2Js,createReadme,commitToGit
+                common, editPackageJson,createPm2Js,createReadme,commitToGit,uploadSSH
             )
         );
     }
