@@ -35,6 +35,13 @@
               "type": "string",
               "description": "入口文件(相对项目根目录)"
             },
+            "statics": {
+              "type": "array",
+              "description": "需要拷贝的静态目录,相对项目根目录的位置,默认会拷贝public目录",
+              "items": {
+                "type": "string"
+              }
+            },
             "dependencies": {
               "type": "object",
               "description": "追加到package.json的dependencies中"

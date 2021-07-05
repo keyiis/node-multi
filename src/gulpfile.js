@@ -157,7 +157,11 @@ function minifyHtml() {
  * @returns
  */
 function copyPublic() {
-    return gulp.src(`${PROJECT_PATH}/public/**/*`).pipe(gulp.dest(`${DIST_PATH}/public`));
+    let staticsPaths = (PROJECT.statics||[]).map(r=>{
+        return `${PROJECT_PATH}/${r}`;
+    });
+    if(staticsPaths.length==0) staticsPaths.push(`${PROJECT_PATH}/public/**/*`);
+    return gulp.src(staticsPaths,{base: `${PROJECT_PATH}`}).pipe(gulp.dest(DIST_PATH));
 }
 
 /**
