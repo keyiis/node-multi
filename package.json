@@ -1,6 +1,6 @@
 {
   "name": "node-multi",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "manger multiple node application & deploy",
   "main": "index.js",
   "scripts": {
@@ -28,6 +28,7 @@
     "del": "^3.0.0",
     "gulp": "^4.0.0",
     "gulp-babel": "^8.0.0",
+    "gulp-cached": "^1.1.1",
     "gulp-cli": "^2.1.0",
     "gulp-htmlmin": "^5.0.1",
     "gulp-json-editor": "^2.5.1",
