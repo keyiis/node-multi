@@ -289,8 +289,8 @@ async function commitToGit() {
     if (!fs.existsSync(`${DIST_PATH}/.git`)) {
         execSync('git init', { cwd: DIST_PATH });
         execSync(`git remote add origin ${ENV.git.url}`, { cwd: DIST_PATH });
-        execSync(`git fetch`, { cwd: DIST_PATH });
-        execSync(`git checkout ${ENV.git.branch}`, { cwd: DIST_PATH });
+        // execSync(`git fetch`, { cwd: DIST_PATH });
+        // execSync(`git checkout ${ENV.git.branch}`, { cwd: DIST_PATH });
     }
     let res = await inq.prompt({
         type: 'input',
@@ -299,7 +299,8 @@ async function commitToGit() {
     });
     execSync('git add .', { cwd: DIST_PATH });
     execSync(`git commit -m ${res.msg || '修改'}`, { cwd: DIST_PATH });
-    execSync(`git push origin -f`, { cwd: DIST_PATH });
+    // execSync(`git push origin -f`, { cwd: DIST_PATH });
+    execSync(`git push origin -f master:${ENV.git.branch}`, { cwd: DIST_PATH });
 }
 
 const common = gulp.series(clean, compileProject, compileCommon, gulp.parallel(copyJs, minifyHtml, copyPublic, createConfigJson));
