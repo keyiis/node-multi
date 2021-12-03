@@ -190,8 +190,9 @@ function editPackageJson() {
         json.version = VERISON;
         delete json.devDependencies;
         delete json.scripts;
-        if (PROJECT.dependencies) {
-            Object.assign(json.dependencies, PROJECT.dependencies);
+        if (PROJECT.dependencies && Object.keys(PROJECT.dependencies).length>0) {
+            // Object.assign(json.dependencies, PROJECT.dependencies);
+            json.dependencies=PROJECT.dependencies;
         }
         return json;
     })).pipe(gulp.dest(DIST_PATH));

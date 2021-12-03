@@ -44,7 +44,7 @@
             },
             "dependencies": {
               "type": "object",
-              "description": "追加到package.json的dependencies中"
+              "description": "替换package.json里的dependencies"
             },
             "env": {
               "type": "object",
