@@ -204,7 +204,7 @@
               }
             }
           },
-          "required": ["config","remotePath"],
+          "required": [],
           "additionalProperties": false
         }
       },
