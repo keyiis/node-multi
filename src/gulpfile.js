@@ -1,4 +1,4 @@
-const gulp = require("gulp"), del = require("del"), ts = require("gulp-typescript"), nodemon = require('gulp-nodemon'), htmlmin = require('gulp-htmlmin'), jsbeautify = require('js-beautify').js, jeditor = require("gulp-json-editor"), babel = require('gulp-babel'), execSync = require('child_process').execSync, moment = require('moment'), fs = require("fs"), inq = require('inquirer'), _ = require('lodash'), GulpSSH = require('gulp-ssh'), zip = require('gulp-zip'), cached = require('gulp-cached');
+const gulp = require("gulp"), del = require("del"), ts = require("gulp-typescript"), nodemon = require('gulp-nodemon'), htmlmin = require('gulp-htmlmin'), jsbeautify = require('js-beautify').js, jeditor = require("gulp-json-editor"), babel = require('gulp-babel'), execSync = require('child_process').execSync, moment = require('moment'), fs = require("fs"), inq = require('inquirer'), _ = require('lodash'), GulpSSH = require('gulp-ssh'), zip = require('gulp-zip'),webpack = require('webpack-stream'), cached = require('gulp-cached'),TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 /**
  * typescript编辑配置
  */
@@ -134,6 +134,56 @@ function compileCommon() {
             ]
         }))
         .pipe(gulp.dest(DIST_PATH));
+}
+
+const tsconfigPath = process.cwd()+'/tsconfig.json';
+// 打包成一个文件
+function compileBundle(){
+    let allModules = fs.readdirSync("node_modules");
+    let noBinModules = allModules.filter(function (x) {
+        return [".bin"].indexOf(x) === -1;
+    });
+    let externals = {};
+    for(let mod of noBinModules){
+        externals[mod] = "commonjs " + mod;
+    }
+    if(ENV.bundle.externals) Object.assign(externals,ENV.bundle.externals);
+    
+    return gulp.src(`${PROJECT_PATH}/${ENV.bundle.entry}`).pipe(webpack({
+        mode: 'production',
+        module: {
+            rules: [
+              {
+                  test: /\.tsx?$/,
+                  use: require.resolve('ts-loader'),
+                //   options: {
+                //     configFile: path.join(__dirname, 'tsconfig.json')
+                //   },
+                  exclude: /node_modules/,
+              },
+            ],
+        },
+        resolve: {
+          extensions: [ '.tsx', '.ts', '.js' ],
+          plugins: [new TsconfigPathsPlugin({ configFile: tsconfigPath })]
+        },
+        output: {
+            //  path: path.resolve(__dirname, "dist"),
+             filename: PROJECT.entry,
+            // chunkFilename: "[name].chunk.js",
+            // chunkFilename: "run.js",
+            libraryTarget: "commonjs"
+        },
+        node: {
+            fs: 'empty',
+            child_process: 'empty',
+            tls: 'empty',
+            net: 'empty',
+            __dirname: false
+        },
+        target: "node",
+        externals: externals,
+    })).pipe(gulp.dest(DIST_PATH));
 }
 /**
  * 拷贝原生js文件
@@ -303,8 +353,14 @@ async function commitToGit() {
     // execSync(`git push origin -f`, { cwd: DIST_PATH });
     execSync(`git push origin -f master:${ENV.git.branch}`, { cwd: DIST_PATH });
 }
-
-const common = gulp.series(clean, compileProject, compileCommon, gulp.parallel(copyJs, minifyHtml, copyPublic, createConfigJson));
+function compile(cb){
+    if(ENV.bundle){
+        return compileBundle();
+    }else{
+        gulp.series(compileProject, compileCommon)(cb)
+    }
+}
+const common = gulp.series(clean, compile, gulp.parallel(copyJs, minifyHtml, copyPublic, createConfigJson));
 
 
 const devSeries = gulp.series(
