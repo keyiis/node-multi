@@ -104,6 +104,20 @@
           "type": "string",
           "description": "环境发布的目录"
         },
+        "bundle":{
+          "type": "object",
+          "description": "是否打包成一个文件",
+          "properties":{
+            "entry":{
+              "type":"string",
+              "description": "入口ts文件"
+            },
+            "externals":{
+              "type":"object",
+              "description": "对应webpack配置文件里的externals"
+            }
+          }
+        },
         "config": {
           "type": "object",
           "description": "环境配置,会生成到项目的根目录下config.json内"
