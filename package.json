@@ -1,44 +1,10 @@
 {
-<<<<<<< HEAD
   "name": "node-multi",
   "version": "0.4.6",
   "description": "manger multiple node application & deploy",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
-=======
-  "_from": "node-multi",
-  "_id": "node-multi@0.4.5",
-  "_inBundle": false,
-  "_integrity": "sha512-irnFJeBSnMYwcDESp2nCN2ogoNVvkpcmzj5Hmpyyp2iPSzbktIo4cJBDUjOafe6mKXwg8x+rkBddn/TAGoVHWw==",
-  "_location": "/node-multi",
-  "_phantomChildren": {
-    "glob-watcher": "5.0.5",
-    "gulp-cli": "2.3.0",
-    "undertaker": "1.3.0",
-    "vinyl-fs": "3.0.3"
-  },
-  "_requested": {
-    "type": "tag",
-    "registry": true,
-    "raw": "node-multi",
-    "name": "node-multi",
-    "escapedName": "node-multi",
-    "rawSpec": "",
-    "saveSpec": null,
-    "fetchSpec": "latest"
-  },
-  "_requiredBy": [
-    "#DEV:/",
-    "#USER"
-  ],
-  "_resolved": "https://registry.npmmirror.com/node-multi/download/node-multi-0.4.5.tgz",
-  "_shasum": "b3e5f25ff148102a084b8a418d173bf5c1af04e0",
-  "_spec": "node-multi",
-  "_where": "D:\\code\\sb\\edge",
-  "author": {
-    "name": "keyiis"
->>>>>>> 6591492fe20f1875297f8fac79e009fbd8b3bdb3
   },
   "bin": {
     "nodem": "bin/cli.js"
@@ -69,28 +35,5 @@
     "ts-loader": "^8.2.0",
     "tsconfig-paths-webpack-plugin": "^3.5.2",
     "webpack-stream": "^6.1.2"
-<<<<<<< HEAD
   }
-=======
-  },
-  "deprecated": false,
-  "description": "manger multiple node application & deploy",
-  "homepage": "https://github.com/keyiis/node-multi#readme",
-  "keywords": [
-    "node",
-    "koa",
-    "deployment"
-  ],
-  "license": "ISC",
-  "main": "index.js",
-  "name": "node-multi",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/keyiis/node-multi.git"
-  },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "version": "0.4.5"
->>>>>>> 6591492fe20f1875297f8fac79e009fbd8b3bdb3
 }
