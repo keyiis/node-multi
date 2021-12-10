@@ -43,8 +43,37 @@
               }
             },
             "dependencies": {
-              "type": "object",
-              "description": "替换package.json里的dependencies"
+              "oneOf": [
+                {
+                  "type":"array",
+                  "description": "以数组方式包含根目录下package.json里的dependencies,例如 ['koa','express']",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "type":"object",
+                  "properties":{
+                    "include":{
+                      "type":"array",
+                      "description": "package.json的dependencies中需要包含的包",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "exclude":{
+                      "type":"array",
+                      "description": "package.json的dependencies中需要去除的包",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "description":"以对象方式选择package.json里的dependencies,{include:[...],exclude:[...]}",
+                  "additionalProperties": false
+                }
+              ],
+              "description": "替换编译后package.json里的dependencies,默认与当前项目根目录下package.json里的dependencies一致。支持数组和对象两种方式选择包。\n1:数组方式 ['koa','express'] \n2:对象方式 {include:[...],exclude:[...]}"
             },
             "env": {
               "type": "object",
