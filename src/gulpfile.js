@@ -1,4 +1,4 @@
-const gulp = require("gulp"), del = require("del"), ts = require("gulp-typescript"), nodemon = require('gulp-nodemon'), htmlmin = require('gulp-htmlmin'), jsbeautify = require('js-beautify').js, jeditor = require("gulp-json-editor"), babel = require('gulp-babel'), execSync = require('child_process').execSync, moment = require('moment'), fs = require("fs"), inq = require('inquirer'), _ = require('lodash'), GulpSSH = require('gulp-ssh'), zip = require('gulp-zip'),webpack = require('webpack-stream'), cached = require('gulp-cached'),TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
+const gulp = require("gulp"), del = require("del"), ts = require("gulp-typescript"), nodemon = require('gulp-nodemon'), htmlmin = require('gulp-htmlmin'), jsbeautify = require('js-beautify').js, jeditor = require("gulp-json-editor"), babel = require('gulp-babel'), execSync = require('child_process').execSync, moment = require('moment'), fs = require("fs"), inq = require('inquirer'), _ = require('lodash'), GulpSSH = require('gulp-ssh'), zip = require('gulp-zip'), webpack = require('webpack-stream'), cached = require('gulp-cached'), nodeExternals = require('webpack-node-externals'), TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 /**
  * typescript编辑配置
  */
@@ -96,7 +96,7 @@ async function clean() {
  */
 function compileProject() {
     return gulp.src([`${PROJECT_PATH}/**/*.ts`], { base: `${PROJECT_PATH}` })
-        .pipe(cached('compileProject'))    
+        .pipe(cached('compileProject'))
         .pipe(tsProject())
         .js
         // 处理路径别名，这里的配置要和tsconfig里paths对应
@@ -136,40 +136,35 @@ function compileCommon() {
         .pipe(gulp.dest(DIST_PATH));
 }
 
-const tsconfigPath = process.cwd()+'/tsconfig.json';
+const tsconfigPath = process.cwd() + '/tsconfig.json';
 // 打包成一个文件
-function compileBundle(){
-    let allModules = fs.readdirSync("node_modules");
-    let noBinModules = allModules.filter(function (x) {
-        return [".bin"].indexOf(x) === -1;
-    });
-    let externals = {};
-    for(let mod of noBinModules){
-        externals[mod] = "commonjs " + mod;
-    }
-    if(ENV.bundle.externals) Object.assign(externals,ENV.bundle.externals);
-    
+function compileBundle() {
     return gulp.src(`${PROJECT_PATH}/${ENV.bundle.entry}`).pipe(webpack({
         mode: 'production',
         module: {
             rules: [
-              {
-                  test: /\.tsx?$/,
-                  use: require.resolve('ts-loader'),
-                //   options: {
-                //     configFile: path.join(__dirname, 'tsconfig.json')
-                //   },
-                  exclude: /node_modules/,
-              },
+                {
+                    test: /\.tsx?$/,
+                    use: require.resolve('ts-loader'),
+                    //   options: {
+                    //     configFile: path.join(__dirname, 'tsconfig.json')
+                    //   },
+                    // include: [
+                    //     path.resolve(process.cwd(), "src/common"),
+                    //     path.resolve(process.cwd(), PROJECT_PATH)
+                    // ],
+                    // 对/node_modules/下的ts文件不做处理
+                    exclude: /node_modules/,
+                },
             ],
         },
         resolve: {
-          extensions: [ '.tsx', '.ts', '.js' ],
-          plugins: [new TsconfigPathsPlugin({ configFile: tsconfigPath })]
+            extensions: ['.tsx', '.ts', '.js'],
+            plugins: [new TsconfigPathsPlugin({ configFile: tsconfigPath })]
         },
         output: {
             //  path: path.resolve(__dirname, "dist"),
-             filename: PROJECT.entry,
+            filename: PROJECT.entry,
             // chunkFilename: "[name].chunk.js",
             // chunkFilename: "run.js",
             libraryTarget: "commonjs"
@@ -182,7 +177,7 @@ function compileBundle(){
             __dirname: false
         },
         target: "node",
-        externals: externals,
+        externals: [nodeExternals(), ENV.bundle?.externals],
     })).pipe(gulp.dest(DIST_PATH));
 }
 /**
@@ -240,24 +235,24 @@ function editPackageJson() {
         json.version = VERISON;
         delete json.devDependencies;
         delete json.scripts;
-        if (_.isArray(PROJECT.dependencies)){
-            for(let key of Object.keys(json.dependencies)){
-                if(PROJECT.dependencies.indexOf(key)<0){
+        if (_.isArray(PROJECT.dependencies)) {
+            for (let key of Object.keys(json.dependencies)) {
+                if (PROJECT.dependencies.indexOf(key) < 0) {
                     delete json.dependencies[key]
                 }
             }
         }
-        if(_.isObject(PROJECT.dependencies)){
-            if(PROJECT.dependencies.include){
-                for(let key of Object.keys(json.dependencies)){
-                    if(PROJECT.dependencies.include.indexOf(key)<0){
+        if (_.isObject(PROJECT.dependencies)) {
+            if (PROJECT.dependencies.include) {
+                for (let key of Object.keys(json.dependencies)) {
+                    if (PROJECT.dependencies.include.indexOf(key) < 0) {
                         delete json.dependencies[key]
                     }
                 }
             }
-            if(PROJECT.dependencies.exclude){
-                for(let key of Object.keys(json.dependencies)){
-                    if(PROJECT.dependencies.exclude.indexOf(key)>=0){
+            if (PROJECT.dependencies.exclude) {
+                for (let key of Object.keys(json.dependencies)) {
+                    if (PROJECT.dependencies.exclude.indexOf(key) >= 0) {
                         delete json.dependencies[key]
                     }
                 }
@@ -372,10 +367,10 @@ async function commitToGit() {
     // execSync(`git push origin -f`, { cwd: DIST_PATH });
     execSync(`git push origin -f master:${ENV.git.branch}`, { cwd: DIST_PATH });
 }
-function compile(cb){
-    if(ENV.bundle){
+function compile(cb) {
+    if (ENV.bundle) {
         return compileBundle();
-    }else{
+    } else {
         gulp.series(compileProject, compileCommon)(cb)
     }
 }
