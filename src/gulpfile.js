@@ -1,4 +1,4 @@
-const gulp = require("gulp"), del = require("del"), ts = require("gulp-typescript"), nodemon = require('gulp-nodemon'), htmlmin = require('gulp-htmlmin'), jsbeautify = require('js-beautify').js, jeditor = require("gulp-json-editor"), babel = require('gulp-babel'), execSync = require('child_process').execSync, moment = require('moment'), fs = require("fs"), inq = require('inquirer'), _ = require('lodash'), GulpSSH = require('gulp-ssh'), zip = require('gulp-zip'), webpack = require('webpack-stream'), cached = require('gulp-cached'), nodeExternals = require('webpack-node-externals'), TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
+const gulp = require("gulp"), del = require("del"), ts = require("gulp-typescript"), nodemon = require('gulp-nodemon'), htmlmin = require('gulp-htmlmin'), jsbeautify = require('js-beautify').js, jeditor = require("gulp-json-editor"), babel = require('gulp-babel'), execSync = require('child_process').execSync, moment = require('moment'), fs = require("fs"), inq = require('inquirer'), _ = require('lodash'), GulpSSH = require('gulp-ssh'), zip = require('gulp-zip'), webpack = require('webpack-stream'), cached = require('gulp-cached'), nodeExternals = require('webpack-node-externals'), TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin'),path = require("path");
 /**
  * typescript编辑配置
  */
@@ -136,32 +136,16 @@ function compileCommon() {
         .pipe(gulp.dest(DIST_PATH));
 }
 
-const tsconfigPath = process.cwd() + '/tsconfig.json';
-// 打包成一个文件
-function compileBundle() {
-    return gulp.src(`${PROJECT_PATH}/${ENV.bundle.entry}`).pipe(webpack({
+
+const tmpJsPath = 'tmp_js';
+/**
+ * 将输出目录的js文件打包成一个文件
+ * @returns 
+ */
+function bundleDist() {
+    // gulp.src([`${DIST_PATH}/*.js`], { base: `${DIST_PATH}` }).pipe(gulp.dest('tmp'));
+    return gulp.src(`${DIST_PATH}/${tmpJsPath}/${PROJECT.entry}`).pipe(webpack({
         mode: 'production',
-        module: {
-            rules: [
-                {
-                    test: /\.tsx?$/,
-                    use: require.resolve('ts-loader'),
-                    //   options: {
-                    //     configFile: path.join(__dirname, 'tsconfig.json')
-                    //   },
-                    // include: [
-                    //     path.resolve(process.cwd(), "src/common"),
-                    //     path.resolve(process.cwd(), PROJECT_PATH)
-                    // ],
-                    // 对/node_modules/下的ts文件不做处理
-                    exclude: /node_modules/,
-                },
-            ],
-        },
-        resolve: {
-            extensions: ['.tsx', '.ts', '.js'],
-            plugins: [new TsconfigPathsPlugin({ configFile: tsconfigPath })]
-        },
         output: {
             //  path: path.resolve(__dirname, "dist"),
             filename: PROJECT.entry,
@@ -180,6 +164,60 @@ function compileBundle() {
         externals: [nodeExternals(), ENV.bundle?.externals],
     })).pipe(gulp.dest(DIST_PATH));
 }
+// const tsconfigPath = process.cwd() + '/tsconfig.json';
+// 打包成一个文件
+// function compileBundle() {
+//     // console.log(111,path.resolve(process.cwd(), "src/common"),path.resolve(process.cwd(), PROJECT_PATH),PROJECT_PATH);
+//     return gulp.src(`${PROJECT_PATH}/${ENV.bundle.entry}`).pipe(webpack({
+//         mode: 'production',
+//         module: {
+//             rules: [
+//                 {
+//                     test: /\.tsx?$/,
+//                     loader: "ts-loader",
+//                     // use: require.resolve('ts-loader'),
+//                     //   options: {
+//                     //     configFile: path.join(__dirname, 'tsconfig.json')
+//                     //   },
+//                     // include: [
+//                     //     path.resolve(process.cwd(), "src/common"),
+//                     //     // "D:/code/sb/apps/src/common",
+//                     //     path.resolve(process.cwd(), PROJECT_PATH)
+//                     // ],
+//                     // include:[path.resolve(process.cwd(), "src/common/*"),path.resolve(process.cwd(), PROJECT_PATH)]
+//                     // exclude: [
+//                     //     path.resolve(process.cwd(), "test"),
+//                     //     // "D:/code/sb/apps/test"
+//                     // ],
+//                     // ts-loader默认已经排除了node_modules,所以这里不需要做设置
+//                     // exclude: /node_modules/,
+//                     // 需要找到办法实现在tsconfig里加include同样效果
+//                 },
+//             ],
+//         },
+//         resolve: {
+//             extensions: ['.tsx', '.ts', '.js'],
+//             // 需要找到办法实现在tsconfig里加include同样效果，tsconfig里又不能直接加，因此只有再引用文件后覆盖，具体怎么实现？
+//             plugins: [new TsconfigPathsPlugin({ configFile: tsconfigPath})]
+//         },
+//         output: {
+//             //  path: path.resolve(__dirname, "dist"),
+//             filename: PROJECT.entry,
+//             // chunkFilename: "[name].chunk.js",
+//             // chunkFilename: "run.js",
+//             libraryTarget: "commonjs"
+//         },
+//         node: {
+//             fs: 'empty',
+//             child_process: 'empty',
+//             tls: 'empty',
+//             net: 'empty',
+//             __dirname: false
+//         },
+//         target: "node",
+//         externals: [nodeExternals(), ENV.bundle?.externals],
+//     })).pipe(gulp.dest(DIST_PATH));
+// }
 /**
  * 拷贝原生js文件
  */
@@ -369,7 +407,17 @@ async function commitToGit() {
 }
 function compile(cb) {
     if (ENV.bundle) {
-        return compileBundle();
+        // return compileBundle();
+        gulp.series(async () => {
+            // 将输出目录转到缓存目录用于存放编译完未打包的js文件
+            DIST_PATH = DIST_PATH+'/'+tmpJsPath;
+        },compileProject, compileCommon,async () => {
+            // 编译完后将输出目录还原
+            DIST_PATH = DIST_PATH.substring(0,DIST_PATH.lastIndexOf('/'+tmpJsPath));
+        },bundleDist,async ()=>{
+            // 删除缓存js目录
+            await del([DIST_PATH+'/'+tmpJsPath], { force: true });
+        })(cb)
     } else {
         gulp.series(compileProject, compileCommon)(cb)
     }
