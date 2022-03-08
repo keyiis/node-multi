@@ -161,7 +161,7 @@ function bundleDist() {
             __dirname: false
         },
         target: "node",
-        externals: [nodeExternals(), ENV.bundle?.externals],
+        externals: [nodeExternals(), ENV.bundle?.externals||{}],
     })).pipe(gulp.dest(DIST_PATH));
 }
 // const tsconfigPath = process.cwd() + '/tsconfig.json';
@@ -254,13 +254,15 @@ function copyPublic() {
  * 生成config.json
  */
 async function createConfigJson() {
-    let exist = fs.existsSync(DIST_PATH);
-    if (!exist) fs.mkdirSync(DIST_PATH, { recursive: true });
-    ENV.config.key = ENV_KEY;
-    ENV.config.name = ENV.name;
-    ENV.config.projectName = PROJECT.name;
-    ENV.config.buildDate = CUR_DATE;
-    fs.writeFileSync(DIST_PATH + '/config.json', jsbeautify(JSON.stringify(ENV.config)), 'utf8');
+    if(ENV.config){
+        let exist = fs.existsSync(DIST_PATH);
+        if (!exist) fs.mkdirSync(DIST_PATH, { recursive: true });
+        ENV.config.key = ENV_KEY;
+        ENV.config.name = ENV.name;
+        ENV.config.projectName = PROJECT.name;
+        ENV.config.buildDate = CUR_DATE;
+        fs.writeFileSync(DIST_PATH + '/config.json', jsbeautify(JSON.stringify(ENV.config)), 'utf8');
+    }
 }
 /**
  * 编辑package.json,去除开发依赖

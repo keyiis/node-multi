@@ -148,7 +148,7 @@
           }
         },
         "config": {
-          "type": "object",
+          "type": ["object", "boolean"],
           "description": "环境配置,会生成到项目的根目录下config.json内"
         },
         "pm2": {
