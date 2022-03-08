@@ -151,6 +151,10 @@
           "type": ["object", "boolean"],
           "description": "环境配置,会生成到项目的根目录下config.json内"
         },
+        "readme": {
+          "type": "boolean",
+          "description": "build时是否生成readme"
+        },
         "pm2": {
           "type": "object",
           "description": "生成pm2启动文件的配置,参考pm2配置 https://pm2.keymetrics.io/docs/usage/application-declaration/",

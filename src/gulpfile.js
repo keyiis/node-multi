@@ -349,8 +349,10 @@ function uploadSSH(cb) {
  * 创建Readme到发布目录
  */
 async function createReadme() {
-    let text = `# ${PROJECT.name}  \n# ${ENV.name}  \n发布日期:${CUR_DATE}  \n`;
-    fs.writeFileSync(DIST_PATH + '/README.md', text);
+    if(ENV.readme){
+        let text = `# ${PROJECT.name}  \n# ${ENV.name}  \n发布日期:${CUR_DATE}  \n`;
+        fs.writeFileSync(DIST_PATH + '/README.md', text);
+    }
 }
 /**
  * 监听变化
