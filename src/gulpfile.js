@@ -271,10 +271,13 @@ async function createConfigJson() {
  */
 function editPackageJson() {
     return gulp.src("./package.json").pipe(jeditor(function (json) {
-        json.description = PROJECT.name;
+        json.name = PROJECT.name;
         json.version = VERISON;
         delete json.devDependencies;
         delete json.scripts;
+        if(ENV.packageJson){
+            Object.assign(json,ENV.packageJson);
+        }
         if (_.isArray(PROJECT.dependencies)) {
             for (let key of Object.keys(json.dependencies)) {
                 if (PROJECT.dependencies.indexOf(key) < 0) {

@@ -253,6 +253,10 @@
           },
           "required": [],
           "additionalProperties": false
+        },
+        "packageJson":{
+          "type": "object",
+          "description": "会替换package.json里的同名属性"
         }
       },
       "additionalProperties": false
