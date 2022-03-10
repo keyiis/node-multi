@@ -469,18 +469,16 @@ gulp.task('dev', (cb)=>{
     gulp.series(setEnv,commonTask, startWatch, startDev)(cb);
 });
 
-function getBuildTasks(){
+function buildTasks(cb){
     let series=[commonTask, editPackageJson];
     if (ENV.pm2) series.push(createPm2Js);
     if (ENV.readme) series.push(createReadme);
     if (ENV.git && ENV.git.url && ENV.git.branch) series.push(commitToGit);
     if (ENV.ssh) series.push(uploadSSH);
-    return series;
+    gulp.series(...series)(cb);
 }
 
-gulp.task('build', (cb)=>{
-    gulp.series(setEnv,...getBuildTasks())(cb);
-});
+gulp.task('build', gulp.series(setEnv,buildTasks));
 /**
  * 将gulp返回的stream转换为promise
  * @param {*} stream 
@@ -525,9 +523,7 @@ async function batch() {
         if (!ENV) throw `${projectKey}下的envs不存在环境[${ENV_KEY}]的配置`;
         DIST_PATH = `${ENV.dist || './dist'}/${PROJECT.dir}/${ENV_KEY}`;
         await toPromise(
-            gulp.series(
-                ...getBuildTasks()
-            )
+            gulp.series( buildTasks )
         );
     }
 }

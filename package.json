@@ -1,6 +1,6 @@
 {
   "name": "node-multi",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "description": "manger multiple node application & deploy",
   "main": "index.js",
   "scripts": {
