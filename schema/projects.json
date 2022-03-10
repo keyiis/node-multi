@@ -135,7 +135,7 @@
         },
         "bundle":{
           "type": "object",
-          "description": "是否打包成一个文件",
+          "description": "是否打包成一个js文件",
           "properties":{
             "entry":{
               "type":"string",
@@ -146,6 +146,32 @@
               "description": "对应webpack配置文件里的externals"
             }
           }
+        },
+        "dtsBundle":{
+          "type": "object",
+          "description": "是否将声明文件打包导出",
+          "properties":{
+            "entry":{
+              "type":"string",
+              "description": "入口ts文件名称"
+            },
+            "outFile":{
+              "type":"string",
+              "description": "输出文件名称"
+            }
+          }
+        },
+        "copyJs": {
+          "type": "boolean",
+          "description": "是否将项目目录下的js文件拷贝发布目录下"
+        },
+        "copyPublic": {
+          "type": "boolean",
+          "description": "是否将项目public目录下的静态文件拷贝发布目录下"
+        },
+        "copyViews": {
+          "type": "boolean",
+          "description": "是否将项目views目录下的ejs/html文件压缩后拷贝到发布目录下"
         },
         "config": {
           "type": ["object", "boolean"],

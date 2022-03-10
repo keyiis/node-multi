@@ -1,8 +1,9 @@
-const gulp = require("gulp"), del = require("del"), ts = require("gulp-typescript"), nodemon = require('gulp-nodemon'), htmlmin = require('gulp-htmlmin'), jsbeautify = require('js-beautify').js, jeditor = require("gulp-json-editor"), babel = require('gulp-babel'), execSync = require('child_process').execSync, moment = require('moment'), fs = require("fs"), inq = require('inquirer'), _ = require('lodash'), GulpSSH = require('gulp-ssh'), zip = require('gulp-zip'), webpack = require('webpack-stream'), cached = require('gulp-cached'), nodeExternals = require('webpack-node-externals'), TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin'),path = require("path");
+const gulp = require("gulp"), del = require("del"), ts = require("gulp-typescript"), nodemon = require('gulp-nodemon'), htmlmin = require('gulp-htmlmin'), jsbeautify = require('js-beautify').js, jeditor = require("gulp-json-editor"), babel = require('gulp-babel'), execSync = require('child_process').execSync, moment = require('moment'), fs = require("fs"), inq = require('inquirer'), _ = require('lodash'), GulpSSH = require('gulp-ssh'), zip = require('gulp-zip'), webpack = require('webpack-stream'), cached = require('gulp-cached'), nodeExternals = require('webpack-node-externals'),dtsBundleGenerator=require('dts-bundle-generator');
 /**
  * typescript编辑配置
+ * 这里配置declaration: true，代表生成声明文件，但必须结合dts.pipe()使用
  */
-let tsProject = ts.createProject("tsconfig.json");
+let tsProject = ts.createProject("tsconfig.json",{declaration: true});
 /**
  * 项目配置列表
  */
@@ -135,7 +136,16 @@ function compileCommon() {
         }))
         .pipe(gulp.dest(DIST_PATH));
 }
-
+async function dtsBundle(){
+    let dts = dtsBundleGenerator.generateDtsBundle([
+        {
+            "filePath": `${PROJECT_PATH}/${ENV.dtsBundle.entry}`
+        }
+    ],{
+        preferredConfigPath:'tsconfig.json'
+    });
+    fs.writeFileSync(`${DIST_PATH}/${ENV.dtsBundle.outFile||"index.d.ts"}`,dts[0],'utf8');
+}
 
 const tmpJsPath = 'tmp_js';
 /**
@@ -226,13 +236,13 @@ function copyJs() {
 }
 
 /**
- * 压缩html
+ * 拷贝并压缩views目录下的ejs/html
  *
  * @returns
  */
-function minifyHtml() {
+function copyViews() {
     return gulp.src([`${PROJECT_PATH}/views/**/*.ejs`, `${PROJECT_PATH}/views/**/*.html`])
-        .pipe(cached('minifyHtml'))
+        .pipe(cached('copyViews'))
         .pipe(htmlmin({ minifyCSS: true, minifyJS: true, removeComments: true, collapseWhitespace: true }))
         .pipe(gulp.dest(`${DIST_PATH}/views`));
 }
@@ -369,10 +379,12 @@ async function startWatch() {
     gulp.watch(['src/common/**/*.ts'], compileCommon).on('all', function (eventName, path) {
         console.log(`TypeScript 文件 ${path} 已被 ${eventName}. 开始重新编译.`);
     });
-    // 监听ejs变化
-    gulp.watch([`${PROJECT_PATH}/views/**/*.ejs`, `${PROJECT_PATH}/views/**/*.html`], minifyHtml).on('all', function (eventName, path) {
-        console.log(`ejs/html 文件 ${path} 已被 ${eventName}. minify-html.`);
-    });
+    if(ENV.copyViews){
+        // 监听ejs变化
+        gulp.watch([`${PROJECT_PATH}/views/**/*.ejs`, `${PROJECT_PATH}/views/**/*.html`], copyViews).on('all', function (eventName, path) {
+            console.log(`ejs/html 文件 ${path} 已被 ${eventName}. minify-html.`);
+        });
+    }
     return;
 }
 // 这段代码可以防止ctrl-c无法一次结束nodemon启动的调试状态
@@ -380,7 +392,7 @@ process.once('SIGINT', function () {
     process.exit(0);
 });
 // 启动开发服务
-async function startDev() {
+async function startDev() {console.log(333,DIST_PATH);
     return nodemon({
         script: `${DIST_PATH}/${PROJECT.entry}`,
         "delay": 1000,
@@ -412,37 +424,63 @@ async function commitToGit() {
     // execSync(`git push origin -f`, { cwd: DIST_PATH });
     execSync(`git push origin -f master:${ENV.git.branch}`, { cwd: DIST_PATH });
 }
+
 function compile(cb) {
+    let ss=[compileProject, compileCommon];
     if (ENV.bundle) {
-        // return compileBundle();
-        gulp.series(async () => {
-            // 将输出目录转到缓存目录用于存放编译完未打包的js文件
-            DIST_PATH = DIST_PATH+'/'+tmpJsPath;
-        },compileProject, compileCommon,async () => {
-            // 编译完后将输出目录还原
-            DIST_PATH = DIST_PATH.substring(0,DIST_PATH.lastIndexOf('/'+tmpJsPath));
-        },bundleDist,async ()=>{
-            // 删除缓存js目录
-            await del([DIST_PATH+'/'+tmpJsPath], { force: true });
-        })(cb)
-    } else {
-        gulp.series(compileProject, compileCommon)(cb)
+        ss=[
+            async () => {
+                // 将输出目录转到缓存目录用于存放编译完未打包的js文件
+                DIST_PATH = DIST_PATH+'/'+tmpJsPath;
+            },
+            ...ss,
+            async () => {
+                // 编译完后将输出目录还原
+                DIST_PATH = DIST_PATH.substring(0,DIST_PATH.lastIndexOf('/'+tmpJsPath));
+            },
+            bundleDist,
+            async ()=>{
+                // 删除缓存js目录
+                await del([DIST_PATH+'/'+tmpJsPath], { force: true });
+            }
+        ];
     }
+    if(ENV.dtsBundle){
+        ss.push(dtsBundle);
+    }
+    gulp.series(...ss)(cb);
 }
-const common = gulp.series(clean, compile, gulp.parallel(copyJs, minifyHtml, copyPublic, createConfigJson));
 
 
-const devSeries = gulp.series(
-    async () => {
-        ENV_KEY = 'development';
-    }, setEnv, common, startWatch, startDev
-);
-gulp.task('dev', devSeries);
 
-const buildSeries = gulp.series(
-    setEnv, common, editPackageJson, createPm2Js, createReadme, commitToGit, uploadSSH
-);
-gulp.task('build', buildSeries);
+function commonTask(cb){
+    let tasks=[clean, compile],parallel=[];
+    if(ENV.copyJs) parallel.push(copyJs);
+    if(ENV.copyPublic) parallel.push(copyPublic);
+    if(ENV.copyViews) parallel.push(copyViews);
+    if(ENV.config) parallel.push(createConfigJson);
+    if(parallel.length>0) tasks.push(gulp.parallel(...parallel));
+    gulp.series(...tasks)(cb);
+}
+
+gulp.task('dev', (cb)=>{
+    ENV_KEY = 'development';
+    // await setEnv();
+    gulp.series(setEnv,commonTask, startWatch, startDev)(cb);
+});
+
+function getBuildTasks(){
+    let series=[commonTask, editPackageJson];
+    if (ENV.pm2) series.push(createPm2Js);
+    if (ENV.readme) series.push(createReadme);
+    if (ENV.git && ENV.git.url && ENV.git.branch) series.push(commitToGit);
+    if (ENV.ssh) series.push(uploadSSH);
+    return series;
+}
+
+gulp.task('build', (cb)=>{
+    gulp.series(setEnv,...getBuildTasks())(cb);
+});
 /**
  * 将gulp返回的stream转换为promise
  * @param {*} stream 
@@ -488,7 +526,7 @@ async function batch() {
         DIST_PATH = `${ENV.dist || './dist'}/${PROJECT.dir}/${ENV_KEY}`;
         await toPromise(
             gulp.series(
-                common, editPackageJson, createPm2Js, createReadme, commitToGit, uploadSSH
+                ...getBuildTasks()
             )
         );
     }
