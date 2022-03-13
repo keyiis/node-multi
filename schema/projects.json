@@ -158,6 +158,10 @@
             "outFile":{
               "type":"string",
               "description": "输出文件名称"
+            },
+            "compilerOptions":{
+              "type": "object",
+              "description": "覆盖tsconfig.json里compilerOptions下的同名属性,等待dts-bundle-generator作者合并这个功能,目前还未生效"
             }
           }
         },

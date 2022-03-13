@@ -3,7 +3,7 @@ const gulp = require("gulp"), del = require("del"), ts = require("gulp-typescrip
  * typescript编辑配置
  * 这里配置declaration: true，代表生成声明文件，但必须结合dts.pipe()使用
  */
-let tsProject = ts.createProject("tsconfig.json",{declaration: true});
+let tsProject = ts.createProject("tsconfig.json");
 /**
  * 项目配置列表
  */
@@ -142,7 +142,8 @@ async function dtsBundle(){
             "filePath": `${PROJECT_PATH}/${ENV.dtsBundle.entry}`
         }
     ],{
-        preferredConfigPath:'tsconfig.json'
+        preferredConfigPath:'tsconfig.json',
+        compilerOptions:ENV.dtsBundle?.compilerOptions||{}
     });
     fs.writeFileSync(`${DIST_PATH}/${ENV.dtsBundle.outFile||"index.d.ts"}`,dts[0],'utf8');
 }
