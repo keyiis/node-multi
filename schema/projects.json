@@ -287,6 +287,10 @@
         "packageJson":{
           "type": "object",
           "description": "会替换package.json里的同名属性"
+        },
+        "autoVersion":{
+          "type": "boolean",
+          "description": "是否自动生成package.json里的version,默认YYYYMMDD.HH.SS.mm"
         }
       },
       "additionalProperties": false

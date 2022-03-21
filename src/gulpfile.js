@@ -283,11 +283,13 @@ async function createConfigJson() {
 function editPackageJson() {
     return gulp.src("./package.json").pipe(jeditor(function (json) {
         json.name = PROJECT.name;
-        json.version = VERISON;
         delete json.devDependencies;
         delete json.scripts;
         if(ENV.packageJson){
             Object.assign(json,ENV.packageJson);
+        }
+        if(ENV.autoVersion){
+            json.version = VERISON;
         }
         if (_.isArray(PROJECT.dependencies)) {
             for (let key of Object.keys(json.dependencies)) {
@@ -393,7 +395,8 @@ process.once('SIGINT', function () {
     process.exit(0);
 });
 // 启动开发服务
-async function startDev() {console.log(333,DIST_PATH);
+async function startDev() {
+    // console.log(333,DIST_PATH);
     return nodemon({
         script: `${DIST_PATH}/${PROJECT.entry}`,
         "delay": 1000,
