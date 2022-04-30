@@ -1,7 +1,7 @@
 {
   "name": "node-multi",
-  "version": "0.5.6",
-  "description": "manger multiple node application & deploy",
+  "version": "0.5.7",
+  "description": "Manager multiple node application & deploy",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -16,10 +16,10 @@
   "dependencies": {
     "@babel/core": "^7.7.2",
     "@babel/preset-env": "^7.7.1",
+    "@keyiis/dts-bundle-generator": "0.0.5",
     "babel-plugin-module-resolver": "^3.2.0",
     "commander": "^5.0.0",
     "del": "^3.0.0",
-    "dts-bundle-generator": "^6.5.0",
     "gulp": "^4.0.0",
     "gulp-babel": "^8.0.0",
     "gulp-cached": "^1.1.1",
