@@ -3,7 +3,12 @@ const gulp = require("gulp"), del = require("del"), ts = require("gulp-typescrip
  * typescript编辑配置
  * 这里配置declaration: true，代表生成声明文件，但必须结合dts.pipe()使用
  */
-let tsProject = ts.createProject("tsconfig.json");
+function getTsProject(){
+    let tsOptions={};
+    // 当typescript的版本大于4.2.4,就必须显示设置rootDir,否则如果包含外部目录的ts文件就会报错
+    if(PROJECT.tsRoot) tsOptions.rootDir=PROJECT.tsRoot;
+    return ts.createProject("tsconfig.json",tsOptions);
+}
 /**
  * 项目配置列表
  */
@@ -96,6 +101,7 @@ async function clean() {
  * @returns
  */
 function compileProject() {
+    let tsProject = getTsProject();
     return gulp.src([`${PROJECT_PATH}/**/*.ts`], { base: `${PROJECT_PATH}` })
         .pipe(cached('compileProject'))
         .pipe(tsProject())
@@ -118,6 +124,7 @@ function compileProject() {
  * 编译common的ts文件
  */
 function compileCommon() {
+    let tsProject = getTsProject();
     return gulp.src(["src/common/**/*.ts"], { base: `src` })
         .pipe(cached('compileCommon'))
         .pipe(tsProject())

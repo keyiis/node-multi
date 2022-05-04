@@ -23,6 +23,10 @@
               "type": "string",
               "description": "项目子目录"
             },
+            "tsRoot":{
+              "type": "string",
+              "description": "tsconfig.json里的rootDir,默认是当前项目的目录,如果要包含外部目录的文件,比如common,则此处要指定共同的根目录,否则会找编译时会报错:'rootDir is expected to contain all source files',此处目录是相对tsconfig.json所在的目录."
+            },
             "disable": {
               "type": "boolean",
               "description": "是否禁用"
