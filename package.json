@@ -1,6 +1,6 @@
 {
   "name": "node-multi",
-  "version": "0.5.9",
+  "version": "0.6.0",
   "description": "Manager multiple node application & deploy",
   "main": "index.js",
   "scripts": {
@@ -12,13 +12,14 @@
   "bugs": {
     "url": "https://github.com/keyiis/node-multi/issues"
   },
-  "bundleDependencies": false,
+  "bundleDependencies": [],
   "dependencies": {
     "@babel/core": "^7.7.2",
     "@babel/preset-env": "^7.7.1",
     "@keyiis/dts-bundle-generator": "0.0.5",
     "babel-plugin-module-resolver": "^3.2.0",
     "commander": "^5.0.0",
+    "comment-json": "^4.2.3",
     "del": "^3.0.0",
     "gulp": "^4.0.0",
     "gulp-babel": "^8.0.0",

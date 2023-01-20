@@ -1,4 +1,4 @@
-const gulp = require("gulp"), del = require("del"), ts = require("gulp-typescript"), nodemon = require('gulp-nodemon'), htmlmin = require('gulp-htmlmin'), jsbeautify = require('js-beautify').js, jeditor = require("gulp-json-editor"), babel = require('gulp-babel'), execSync = require('child_process').execSync, moment = require('moment'), fs = require("fs"), inq = require('inquirer'), _ = require('lodash'), GulpSSH = require('gulp-ssh'), zip = require('gulp-zip'), webpack = require('webpack-stream'), cached = require('gulp-cached'), nodeExternals = require('webpack-node-externals'),dtsBundleGenerator=require('@keyiis/dts-bundle-generator');
+const gulp = require("gulp"), del = require("del"), ts = require("gulp-typescript"), nodemon = require('gulp-nodemon'), htmlmin = require('gulp-htmlmin'), jsbeautify = require('js-beautify').js, jeditor = require("gulp-json-editor"), babel = require('gulp-babel'), execSync = require('child_process').execSync, moment = require('moment'), fs = require("fs"), inq = require('inquirer'), _ = require('lodash'), GulpSSH = require('gulp-ssh'), zip = require('gulp-zip'), webpack = require('webpack-stream'), cached = require('gulp-cached'), nodeExternals = require('webpack-node-externals'),dtsBundleGenerator=require('@keyiis/dts-bundle-generator'),commentJson = require('comment-json');
 /**
  * typescript编辑配置
  * 这里配置declaration: true，代表生成声明文件，但必须结合dts.pipe()使用
@@ -14,7 +14,7 @@ function getTsProject(){
  */
 // throw new Error(222+'  '+process.cwd()+'  '+__dirname);
 // let PROJECTS={}
-let PROJECTS = JSON.parse(fs.readFileSync(process.cwd() + '/projects.json'));
+let PROJECTS = commentJson.parse(fs.readFileSync(process.cwd() + '/projects.json'));
 // let PROJECTS=require('./projects.json');
 /**
  * 当前项目配置
