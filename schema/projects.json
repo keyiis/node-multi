@@ -40,11 +40,7 @@
               "description": "入口文件(相对项目根目录)"
             },
             "statics": {
-              "type": "array",
-              "description": "需要拷贝的静态目录,相对项目根目录的位置,默认会拷贝public目录",
-              "items": {
-                "type": "string"
-              }
+              "$ref": "#/definitions/statics"
             },
             "dependencies": {
               "oneOf": [
@@ -115,6 +111,13 @@
     "projects"
   ],
   "definitions": {
+    "statics": {
+      "type": "array",
+      "description": "需要拷贝的静态目录或文件,相对项目根目录的位置,默认会拷贝public目录,可以是二维数组,比如[['raw','rename']],raw代表原始文件名,rename代表重命名后的文件名",
+      "items": {
+        "type": ["string", "array"]
+      }
+    },
     "envsOptions": {
       "type": "object",
       "description": "环境列表",
@@ -172,6 +175,9 @@
         "copyJs": {
           "type": "boolean",
           "description": "是否将项目目录下的js文件拷贝发布目录下"
+        },
+        "statics": {
+          "$ref": "#/definitions/statics"
         },
         "copyPublic": {
           "type": "boolean",

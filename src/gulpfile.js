@@ -260,12 +260,30 @@ function copyViews() {
  *
  * @returns
  */
-function copyPublic() {
-    let staticsPaths = (PROJECT.statics || []).map(r => {
-        return `${PROJECT_PATH}/${r}`;
-    });
-    if (staticsPaths.length == 0) staticsPaths.push(`${PROJECT_PATH}/public/**/*`);
-    return gulp.src(staticsPaths, { base: `${PROJECT_PATH}` }).pipe(gulp.dest(DIST_PATH));
+async function copyPublic() {
+    const statics = ENV.statics || PROJECT.statics || [];
+    if(statics.length>0){
+        for(let static of statics){
+            if(static instanceof Array){//如果是数组要做别名处理
+                fs.copyFileSync(`${PROJECT_PATH}/${static[0]}`, `${DIST_PATH}/${static[1]}`);
+            }else{
+                fs.copyFileSync(`${PROJECT_PATH}/${static}`, `${DIST_PATH}/${static}`);
+            }
+        }
+    }else{
+        fs.cpSync(`${PROJECT_PATH}/public`, `${DIST_PATH}/public`);
+    }
+    
+    // let staticsPaths = (PROJECT.statics || []).map(r => {
+    //     if(r instanceof Array){//如果是数组要做别名处理
+            
+    //     }else{
+
+    //     }
+    //     return `${PROJECT_PATH}/${r}`;
+    // });
+    // if (staticsPaths.length == 0) staticsPaths.push(`${PROJECT_PATH}/public/**/*`);
+    // return gulp.src(staticsPaths, { base: `${PROJECT_PATH}` }).pipe(gulp.dest(DIST_PATH));
 }
 
 /**
